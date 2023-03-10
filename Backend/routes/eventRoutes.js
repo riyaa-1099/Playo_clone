@@ -39,3 +39,19 @@ eventRouter.get("/", async (req, res) => {
       res.send({ msg: "Something went wrong", status: "error" });
     }
   });
+
+
+
+  // Getting events created by a user herself
+
+eventRouter.get("/getmyevents", authentication, async (req, res) => {
+    const userId = req.body.userId;
+  
+    try {
+      const events = await Event.find({ createdBy: userId });
+      res.send(events);
+    } catch (error) {
+      console.log(error);
+      res.send({ msg: "Something went wrong", status: "error" });
+    }
+  });
