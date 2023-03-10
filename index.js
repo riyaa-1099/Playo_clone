@@ -1,13 +1,14 @@
 const express = require("express");
-
-
+const cors = require("cors");
 
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: '*' }));
-const  authentication  = require("./Backend/middleware/auth");
 
-const { userRouter } = require("./Backend/routes/userRoutes");
+const  authentication  = require("./Backend/middleware/auth");
+const connection = require("./Backend/configuration/db")
+const userRouter  = require("./Backend/routes/userRoutes");
+const eventRouter = require("./Backend/routes/eventRoutes");
 
 app.get("/", (req, res) => {
     res.send({ msg: "Welcome" });
@@ -16,6 +17,8 @@ app.get("/", (req, res) => {
   app.use("/user", userRouter);
 
   app.use(authentication)
+
+  app.use("/start",eventRouter)
 
 app.listen(7000, async () => {
     try {

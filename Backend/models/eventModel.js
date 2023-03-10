@@ -30,15 +30,11 @@ const eventSchema = new mongoose.Schema(
     acceptedRequests: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-    }],
-    rejectedRequests: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-    }],
+    }]
   },
   { timestamps: true }
 );
 
-const Event = mongoose.model('Event', eventSchema);
+const Event = mongoose.model('playoEvent', eventSchema);
 
 module.exports = Event;
