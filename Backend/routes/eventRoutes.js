@@ -1,8 +1,7 @@
 const express = require("express");
 const eventRouter = express.Router();
 
-const authentication = require("../middleware/auth");
-const checkEventStarted = require("../middleware/checkeventstarted");
+const deleteExpiredRequests = require("../middleware/checkeventstarted");
 
 const Event = require("../models/Event");
 const User = require("../models/User");
@@ -10,7 +9,7 @@ const User = require("../models/User");
 
 //----------------------------------------- Creating event which includes maxplayers, time etc properties
 
-eventRouter.post("/create", authentication, async (req, res) => {
+eventRouter.post("/create", async (req, res) => {
   const { game, information, startTime, maxPlayers, userId } = req.body;
 
 
@@ -35,7 +34,7 @@ eventRouter.post("/create", authentication, async (req, res) => {
 
 //------------------------------------- Getting all events which were created for Home Page
 
-eventRouter.get("/", async (req, res) => {
+eventRouter.get("/",deleteExpiredRequests, async (req, res) => {
     try {
       const events = await Event.find().populate("createdBy", "username").populate("game", "game").sort({ startTime: 1 });
       res.send(events);
@@ -73,7 +72,7 @@ eventRouter.get("/", async (req, res) => {
 
   //------------------------------- Getting events created by a user herself
 
-eventRouter.get("/getmyevents", authentication, async (req, res) => {
+eventRouter.get("/getmyevents", async (req, res) => {
     const userId = req.body.userId;
   
     try {
@@ -88,7 +87,7 @@ eventRouter.get("/getmyevents", authentication, async (req, res) => {
 
 //------------------------------ Requesting to join an event and will only send if accepted requests less then max players allowed 
 
-eventRouter.post("/requesttojoin/:id", authentication, async (req, res) => {
+eventRouter.post("/requesttojoin/:id", async (req, res) => {
     const eventId = req.params.id;
     const userId = req.body.userId;
   
@@ -98,6 +97,13 @@ eventRouter.post("/requesttojoin/:id", authentication, async (req, res) => {
       if (!event) {
         return res.send({ msg: "Event does not exist", status: "fail" });
       }
+
+// Checking if the event has already started
+const now = new Date();
+if (event.startTime <= now) {
+  return res.status(400).send({ msg: "Event has already started cant join now", status: "fail" });
+}
+
 
       if (event.maxPlayers > event.acceptedRequests.length) {
         return res.send({ msg: "Players already booked, No slots available", status: "fail" });
@@ -174,7 +180,7 @@ eventRouter.post('/approve-request/:eventId/:requestId', async (req, res) => {
 
   //---------------------------------------------------- Getting pending requests for an event
 
-  eventRouter.get("/pendingrequests/:id", authentication, async (req, res) => {
+  eventRouter.get("/pendingrequests/:id", async (req, res) => {
     const eventId = req.params.id;
     const userId = req.body.userId;
   
@@ -197,7 +203,7 @@ eventRouter.post('/approve-request/:eventId/:requestId', async (req, res) => {
 
   // --------------------------------------------------Cancel a request to join an event by user
 
-eventRouter.put("/cancel/:eventId", authentication, async (req, res) => {
+eventRouter.put("/cancel/:eventId", async (req, res) => {
     const { eventId } = req.params;
     const { userId } = req.body;
   
@@ -236,5 +242,6 @@ if (event.startTime <= now) {
       res.send({ msg: "Something went wrong", status: "error" });
     }
   });
+
 
   module.exports = eventRouter;

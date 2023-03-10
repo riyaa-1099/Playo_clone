@@ -1,21 +1,20 @@
 // Middleware to check if event has started
 
-const checkEventStarted = async (req, res, next) => {
-    const eventId = req.params.id;
-    const event = await Event.findById(eventId);
-    
-    if (event.startTime < new Date()) {
-      // Expire all pending requests for the event
+const deleteExpiredRequests = async () => {
+  try {
+    // Find all events with start time less than current time
+    const expiredEvents = await Event.find({ startTime: { $lte: new Date() } });
+
+    // Delete pending requests of expired events
+    for (const event of expiredEvents) {
       event.pendingRequests = [];
       await event.save();
-  
-      return res.status(400).send({
-        msg: "The event has already started, all pending requests have been expired",
-        status: "fail",
-      });
     }
-  
-    next();
-  };
 
-  module.exports = checkEventStarted;
+    console.log(`Deleted pending requests of ${expiredEvents.length} expired events`);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+  module.exports = deleteExpiredRequests;
