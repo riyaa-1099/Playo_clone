@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
@@ -18,13 +19,13 @@ app.get("/", (req, res) => {
 
   app.use(authentication)
 
-  app.use("/start",eventRouter)
+  app.use("/event",eventRouter)
 
-app.listen(7000, async () => {
+app.listen(process.env.port, async () => {
     try {
       await connection;
       console.log("Connected to db successfully");
-      console.log("Listening on port 7000");
+      console.log(`Listening on port ${process.env.port}`);
     } catch (err) {
       console.log(err);
       console.log("Connection failed to db");

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const Usermodel = require("../models/userModel.js");
 const eventSchema = new mongoose.Schema(
   {
     game: {
@@ -20,16 +20,16 @@ const eventSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: Usermodel,
       required: true,
     },
     pendingRequests: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: Usermodel
     }],
     acceptedRequests: [{
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: Usermodel
     }]
   },
   { timestamps: true }

@@ -3,7 +3,7 @@ const userRouter = express.Router();
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
-const Usermodel = require("../models/userModel");
+const Usermodel = require("../models/userModel.js");
 const tokencreate=require("../helpers/token")
 
 

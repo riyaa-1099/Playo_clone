@@ -7,4 +7,4 @@ function tokencreate(userId) {
   return { token };
 }
 
-module.exports = { tokencreate };
+module.exports =  tokencreate ;
