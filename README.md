@@ -46,7 +46,7 @@
 <li>The /user/login expects a POST request with the fields username and passwords in the requst body. It creates a new Usermodel document and saves it to the database.
 </br>
 </br>
-<li>The /create route expects a POST request with the fields game, information, startTime, maxPlayers, and userId in the request body. It creates a new Event document and saves it to the database.
+<li>The /create route expects a POST request with the fields game, information, startTime, maxPlayers, and userId in the request body. It matched this in database to authenticate user and provides token.
 </br>
 </br>
 <li>The / route expects a GET request and returns all Event documents sorted by startTime in ascending order.
