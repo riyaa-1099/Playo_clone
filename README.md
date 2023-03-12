@@ -119,13 +119,13 @@ userId: string, required
 userId: string, required
 <h3>/event/pendingrequests/:id
 <h4>Method: GET
-<h4>Description: Returns the pending requests for an event.
+<h4>Description: Returns all the pending requests for an event.
 <h4>URL parameter: id, string, required
 <h4>Request body:
 userId: string, required
 <h3>/event/cancel/:eventId
 <h4>Method: PUT
-<h4>Description: Deletes the user's request to join or accepted request from an event.
+<h4>Description: Deletes the user's request to join from pending or accepted request from an event.
 <h4>URL parameter: eventId, string, required
 <h4>Request body:
 userId: string, required
