@@ -1,6 +1,7 @@
 // Middleware to check if event has started
+const Event = require("../models/eventModel.js");
 
-const deleteExpiredRequests = async () => {
+const deleteExpiredRequests = async (req,res,next) => {
   try {
     // Find all events with start time less than current time
     const expiredEvents = await Event.find({ startTime: { $lte: new Date() } });
@@ -12,7 +13,9 @@ const deleteExpiredRequests = async () => {
     }
 
     console.log(`Deleted pending requests of ${expiredEvents.length} expired events`);
-  } catch (error) {
+    next()
+  } 
+  catch (error) {
     console.log(error);
   }
 };

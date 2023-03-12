@@ -1,14 +1,13 @@
 const express = require("express");
 const eventRouter = express.Router();
 
-
 const deleteExpiredRequests = require("../middleware/checkeventstarted");
 
 const Event = require("../models/eventModel.js");
 
-//----------------------------------------- Creating event which includes maxplayers, time etc properties
+//------------------------------------ Creating event which includes maxplayers, time etc properties
 
-eventRouter.post("/create", deleteExpiredRequests, async (req, res) => {
+eventRouter.post("/create", async (req, res) => {
   const { game, information, startTime, maxPlayers, userId } = req.body;
 
   try {
@@ -29,14 +28,10 @@ eventRouter.post("/create", deleteExpiredRequests, async (req, res) => {
 
 //------------------------------------- Getting all events which were created for Home Page
 
-eventRouter.get("/", async (req, res) => {
+eventRouter.get("/", deleteExpiredRequests, async (req, res) => {
   try {
-    const events = await Event.find(
-      {},
-      "game information startTime maxPlayers "
-    )
-      .populate("createdBy", "username -_id")
-      .sort({ startTime: 1 });
+    //.populate("createdBy", "username -_id")
+    const events = await Event.find().sort({ startTime: 1 });
     res.send(events);
   } catch (error) {
     console.log(error);
@@ -67,13 +62,15 @@ eventRouter.get("/:id", async (req, res) => {
       acceptedRequests,
     } = event;
 
+    const usernames = acceptedRequests.map((user) => user.username);
+
     res.send({
       game,
       information,
       startTime,
       maxPlayers,
       createdBy,
-      acceptedRequests,
+      acceptedRequests: usernames,
     });
   } catch (error) {
     console.log(error);
@@ -97,7 +94,7 @@ eventRouter.get("/getmyevents", async (req, res) => {
   }
 });
 
-//-------------------------- Requesting to join an event and will only send if accepted requests less then max players allowed
+//---------------------------------- Requesting to join an event
 //640c5dfc8a3a6cd405d91ab9
 
 eventRouter.post("/requesttojoin/:id", async (req, res) => {
@@ -116,13 +113,6 @@ eventRouter.post("/requesttojoin/:id", async (req, res) => {
     if (event.startTime <= now) {
       return res.status(400).send({
         msg: "Event has already started cant join now",
-        status: "fail",
-      });
-    }
-
-    if (event.maxPlayers < event.acceptedRequests.length) {
-      return res.send({
-        msg: "Players already booked, No slots available",
         status: "fail",
       });
     }
@@ -207,12 +197,18 @@ eventRouter.post("/approve-request/:eventId/:requestId", async (req, res) => {
 eventRouter.get("/pendingrequests/:id", async (req, res) => {
   let eventId = req.params.id;
   const userId = req.body.userId;
-  
-  console.log(eventId);
 
   try {
-    // const event = await Event.findById(eventId).populate("pendingRequests", "username email");
-    const event = await Event.findById(eventId);
+    const event = await Event.findById(eventId)
+      .populate({
+        path: "pendingRequests",
+        select: "username",
+      })
+      .populate({
+        path: "acceptedRequests",
+        select: "username",
+      });
+
     if (!event) {
       return res.send({ msg: "Event does not exist", status: "fail" });
     }
@@ -249,21 +245,27 @@ eventRouter.put("/cancel/:eventId", async (req, res) => {
 
     // Checking if the user has requested to join the event
 
-    const userIndex = event.pendingRequests.indexof(userId);
+    const userIndex = event.pendingRequests.indexOf(userId);
+    const userIndex2 = event.acceptedRequests.indexOf(userId);
 
-    if (userIndex === -1) {
+    if (userIndex === -1 && userIndex2 === -1) {
       return res.status(400).send({
         msg: "You have not requested to join this event",
         status: "fail",
       });
+    } else if (userIndex !== -1 && userIndex2 === -1) {
+      event.pendingRequests.splice(userIndex, 1);
+
+      await event.save();
+
+      res.send({ msg: "Request cancelled successfully", status: "success" });
+    } else {
+      event.acceptedRequests.splice(userIndex, 1);
+
+      await event.save();
+
+      res.send({ msg: "Request cancelled successfully", status: "success" });
     }
-
-    // Remove the user's request to join the event
-    event.pendingRequests.splice(userIndex, 1);
-
-    await event.save();
-
-    res.send({ msg: "Request cancelled successfully", status: "success" });
   } catch (err) {
     console.log(err);
     res.send({ msg: "Something went wrong", status: "error" });
