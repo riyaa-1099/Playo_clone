@@ -43,7 +43,7 @@
 <li>The /user/signup expects a POST request with the fields username and password in the requst body. It creates a new Usermodel document and saves it to the database.
 </br>
 </br>
-<li>The /user/login expects a POST request with the fields username and passwords in the requst body. It creates a new Usermodel document and saves it to the database.
+<li>The /user/login expects a POST request with the fields username and passwords in the requst body. It queries database and check for username and password for authenticating user.
 </br>
 </br>
 <li>The /create route expects a POST request with the fields game, information, startTime, maxPlayers, and userId in the request body. It matched this in database to authenticate user and provides token.
