@@ -46,7 +46,7 @@
 <li>The /user/login expects a POST request with the fields username and passwords in the requst body. It queries database and check for username and password for authenticating user.
 </br>
 </br>
-<li>The /create route expects a POST request with the fields game, information, startTime, maxPlayers, and userId in the request body. It matched this in database to authenticate user and provides token.
+<li>The /create route expects a POST request with the fields game, information, startTime, maxPlayers, and userId in the request body. It creates an event and saves it to database with relevant informations.
 </br>
 </br>
 <li>The / route expects a GET request and returns all Event documents sorted by startTime in ascending order.
@@ -61,10 +61,10 @@
 <li>The /requesttojoin/:id route expects a POST request with the id of an Event document in the URL parameter and the userId of the user in the request body. It adds the userId to the pendingRequests array of the Event document if the user has not already joined or requested to join the event.
 </br>
 </br>
-<li>The /approve-request/:eventId/:requestId route expects a POST request with the eventId and requestId of an Event document and a pending request, respectively, in the URL parameters, as well as the userId of the user approving the request in the request body. It adds the requestId to the acceptedRequests array of the Event document and removes it from the pendingRequests array.
+<li>The /approve-request/:eventId/:requestId route expects a POST request with the eventId and requestId of an Event document and a pending request, respectively, in the URL parameters, as well as the userId of the user approving the request in the request body. It adds the requestId to the acceptedRequests array of the Event document and removes it from the pendingRequests array, and the user created the event can perform this operation.
 </br>
 </br>
-<li>The /pendingrequests/:id route expects a GET request with the id of an Event document in the URL parameter and the userId of the user in the request body. It returns the pending requests for the Event document.
+<li>The /pendingrequests/:id route expects a GET request with the id of an Event document in the URL parameter and the userId of the user in the request body. It returns all the pending requests for the Event document.
 </br>
 </br>
 <li> /event/cancel/:eventId route expects a PUT request with id of an Event document in the URL parameter and the userId of the user in the request body. It checks the request in both pending and accepted arrays and delete from there.
@@ -78,12 +78,14 @@
 <h4>Request body:
 username: string, required
 password: string, required
+  <br>
 <h3>/user/login
 <h4>Method: POST
 <h4>Description: Authenticates a user.
 <h4>Request body:
 username: string, required
 password: string, required
+    <br>
 <h3>/event/create
 <h4>Method: POST
 <h4>Description: Creates a new event.
@@ -93,6 +95,7 @@ information: string, required
 startTime: Date, required
 maxPlayers: number, required
 userId: string, required
+    <br>
 <h3>/event
 <h4>Method: GET
 <h4>Description: Returns all events sorted by start time in ascending order.
@@ -100,29 +103,34 @@ userId: string, required
 <h4>Method: GET
 <h4>Description: Returns the details of an event.
 URL parameter: id, string, required
+    <br>
 <h3>/event/getmyevents
 <h4>Method: GET
 <h4>Description: Returns all events created by the user sorted by start time in ascending order.
 <h4>Request body:
 userId: string, required
+    <br>
 <h3>/event/requesttojoin/:id
 <h4>Method: POST
 <h4>Description: Adds a user to the pending requests array of an event.
 <h4>URL parameter: id, string, required
 <h4>Request body:
 userId: string, required
+    <br>
 <h3>/event/approve-request/:eventId/:requestId
 <h4>Method: POST
 <h4>Description: Approves a pending request to join an event and adds the user to the accepted requests array.
-<h4>URL parameter: eventId, string, required, requestId, string, required
+<h4>URL parameter: eventId, string, required; requestId, string, required
 <h4>Request body:
 userId: string, required
+    <br>
 <h3>/event/pendingrequests/:id
 <h4>Method: GET
 <h4>Description: Returns all the pending requests for an event.
 <h4>URL parameter: id, string, required
 <h4>Request body:
 userId: string, required
+    <br>
 <h3>/event/cancel/:eventId
 <h4>Method: PUT
 <h4>Description: Deletes the user's request to join from pending or accepted request from an event.
